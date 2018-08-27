@@ -151,7 +151,7 @@ class Matrix():
             elif type(args[0]) == int:
                 matrix = [[0]*args[0]]*args[0]
             elif isinstance(args[0], Matrix):
-                matrix = args[0]._matrix[:]
+                matrix = args[0][:]
             else:
                 raise TypeError('Matrix can be initialised only with a list, int, or another Matrix')
         elif len(args) == 2:
@@ -167,8 +167,8 @@ class Matrix():
 
     def toNumbers(self):
         for r in range(self.rows):
-            for c in range(len(self._matrix[r])):
-                self._matrix[r][c] = Number(self._matrix[r][c])
+            for c in range(len(self[r])):
+                self[r][c] = Number(self[r][c])
 
     # Matrix contents acess
     def __getitem__(self, i):
@@ -194,28 +194,28 @@ class Matrix():
         if not isinstance(other, Matrix) or self.size != other.size:
             return False
         for r in range(self.rows):
-            for c in range(len(self._matrix[r])):
-                if self._matrix[r][c] != other[r][c]:
+            for c in range(len(self[r])):
+                if self[r][c] != other[r][c]:
                     return False
         return True
 
     def transpose(self):
-        self._matrix = self.transposed()
+        self._matrix = self.transposed()._matrix
 
     def transposed(self):
-        return Matrix([[self._matrix[r][c] for r in range(self.rows)] for c in range(self.columns)])
+        return Matrix([[self[r][c] for r in range(self.rows)] for c in range(self.columns)])
 
     def __add__(self, other):
         if not isinstance(other, Matrix):
             raise TypeError('Matrix cannot be added with non matrix objects')
         if self.size != other.size:
             raise TypeError('Cannot add matricies of different size')
-        return Matrix([[self._matrix[r][c] + other._matrix[r][c] for c in range(self.columns)] for r in range(self.rows)])
+        return Matrix([[self[r][c] + other[r][c] for c in range(self.columns)] for r in range(self.rows)])
 
     def __mul__(self, other):
         if not isinstance(other, Matrix) or self.size != other.size[::-1]:
             if isinstance(other, int) or isinstance(other, float) or isinstance(other, Number):
-                return Matrix([[other * self._matrix[r][c] for c in range(self.columns)] for r in range(self.rows)])
+                return Matrix([[other * self[r][c] for c in range(self.columns)] for r in range(self.rows)])
             else:
                 raise TypeError('Matrix cannot be multiplied by non matrix/numerical objects')
         result = [[None]*other.columns for i in range(self.rows)]
@@ -223,7 +223,7 @@ class Matrix():
             for c in range(len(result[0])):
                 cellSum = 0
                 for i in range(self.columns):
-                    cellSum += self._matrix[r][i] * other._matrix[i][c]
+                    cellSum += self[r][i] * other[i][c]
                 result[r][c] = cellSum
         return Matrix(result)
 
@@ -245,7 +245,7 @@ class Matrix():
 
     @property
     def columns(self):
-        return len(self._matrix[0])
+        return len(self[0])
 
     def __repr__(self):
         # return '<Matrix {0}x{1}>'.format(*self.size)
@@ -261,15 +261,15 @@ class Matrix():
             rowString += '⎡' if row == 0 else ('⎣' if row == (self.rows-1) else '⎢')
             if self.augmentLocation != None:
                 # Adds all but last element of row
-                for elem in self._matrix[row][:self.augmentLocation]:
+                for elem in self[row][:self.augmentLocation]:
                     rowString += ('{:>' + str(self.MaxElementLength) + '.' + str(self.MaxElementLength+1) +
                                   '}').format(' ' + str(elem).replace(' -', '-'))
                 rowString += ' ⎢ '
-                for elem in self._matrix[row][self.augmentLocation:]:
+                for elem in self[row][self.augmentLocation:]:
                     rowString += ('{:>' + str(self.MaxElementLength) + '.' + str(self.MaxElementLength+1) +
                                   '}').format(' ' + str(elem).replace(' -', '-'))
             else:
-                for elem in self._matrix[row]:
+                for elem in self[row]:
                     rowString += ('{:>' + str(self.MaxElementLength) + '.' + str(self.MaxElementLength+1) +
                                   '}').format(' ' + str(elem).replace(' -', '-'))
             # Adds square bracket end
@@ -299,34 +299,34 @@ class GaussJordanSLE(Matrix):
 
     def check_zeros(self, row):
         for i in range(self.rows):
-            if(self._matrix[row][i] != 0):
+            if(self[row][i] != 0):
                 return(False)
         return(True)
 
     def move_row(self, row):
-        temp = self._matrix[self.rows-1]
-        self._matrix[self.rows-1] = self._matrix[row]
-        self._matrix[row] = temp
+        temp = self[self.rows-1]
+        self[self.rows-1] = self[row]
+        self[row] = temp
 
     def clear_collum(self, row, pos):
         # going up
         rotpos = row
         while(rotpos-1 >= 0):
-            if self._matrix[rotpos-1][pos] != 0:
-                multiple = self._matrix[rotpos-1][pos]
-                for i in range(len(self._matrix[row])):
-                    self._matrix[rotpos-1][i] -= multiple*self._matrix[row][i]
+            if self[rotpos-1][pos] != 0:
+                multiple = self[rotpos-1][pos]
+                for i in range(len(self[row])):
+                    self[rotpos-1][i] -= multiple*self[row][i]
                 # subtract thigns
             rotpos -= 1
         rotpos = row
         # print_array()
         while(rotpos+1 < self.rows):
-            if self._matrix[rotpos+1][pos] != 0:
-                multiple = self._matrix[rotpos+1][pos]
-                for i in range(len(self._matrix[row])):
-                    # print(str(self._matrix[rotpos+1][i]) + " - " + str(multiple) + " x "+  str(self._matrix[row][i]) + " = ")
-                    self._matrix[rotpos+1][i] -= multiple*self._matrix[row][i]
-                    # print(self._matrix[rotpos+1][i])
+            if self[rotpos+1][pos] != 0:
+                multiple = self[rotpos+1][pos]
+                for i in range(len(self[row])):
+                    # print(str(self[rotpos+1][i]) + " - " + str(multiple) + " x "+  str(self[row][i]) + " = ")
+                    self[rotpos+1][i] -= multiple*self[row][i]
+                    # print(self[rotpos+1][i])
                     # print_array()
                     # print()
             rotpos += 1
