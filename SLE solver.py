@@ -162,7 +162,7 @@ class Matrix():
         else:
             raise TypeError('Matrix initialisation takes at most 2 arguments')
         self._matrix = matrix
-        self.MaxElementLength = 7
+        self.MaxElementLength = max(map(lambda x: max(map(lambda y: len(str(y)), x)), self._matrix))+1
         self.augmentLocation = augmentLocation
 
     def toNumbers(self):
@@ -252,19 +252,16 @@ class Matrix():
         return self.__str__()
 
     def __str__(self):
-        return str(self._matrix)
-
-    def prettyStr(self):
         rowString = ''
         for row in range(self.rows):
             # Adds square bracket start
-            rowString += '⎡' if row == 0 else ('⎣' if row == (self.rows-1) else '⎢')
+            rowString += ('⎧' if row == 0 else ('⎩' if row == (self.rows-1) else '⎪')) if self.rows > 1 else '('
             if self.augmentLocation != None:
                 # Adds all but last element of row
                 for elem in self[row][:self.augmentLocation]:
                     rowString += ('{:>' + str(self.MaxElementLength) + '.' + str(self.MaxElementLength+1) +
                                   '}').format(' ' + str(elem).replace(' -', '-'))
-                rowString += ' ⎢ '
+                rowString += ' ⎢'
                 for elem in self[row][self.augmentLocation:]:
                     rowString += ('{:>' + str(self.MaxElementLength) + '.' + str(self.MaxElementLength+1) +
                                   '}').format(' ' + str(elem).replace(' -', '-'))
@@ -273,7 +270,7 @@ class Matrix():
                     rowString += ('{:>' + str(self.MaxElementLength) + '.' + str(self.MaxElementLength+1) +
                                   '}').format(' ' + str(elem).replace(' -', '-'))
             # Adds square bracket end
-            rowString += ' ' + ('⎤' if row == 0 else ('⎦' if row == self.rows-1 else '⎥'))
+            rowString += (' ' + ('⎫' if row == 0 else ('⎭' if row == self.rows-1 else '⎪'))) if self.rows > 1 else ')'
             # If not last line add new line
             rowString += '\n' if row < self.rows else ''
         return rowString
