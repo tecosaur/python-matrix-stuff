@@ -1,10 +1,3 @@
-array = [
-    [2, 3, 1, 13],
-    [8, 0, -2, -10],
-    [0, 18, -3, 9]
-]
-
-
 class Number():
     """@author tecosaur"""
 
@@ -142,6 +135,7 @@ class Matrix():
     "@author tecosaur"
 
     def __init__(self, *args, augmentLocation=None):
+        print('args [' + str(len(args)) + ']:', args)
         # Sanitise matrix
         if len(args) == 0:
             matrix = [0]
@@ -280,15 +274,15 @@ class Matrix():
 class GaussJordanSLE(Matrix):
     "@author DAdams2"
 
-    def __init__(self, augmented_matrix):
-        Matrix.__init__(self, augmented_matrix, -1)
+    def __init__(self, augmented_matrix, augmentLocation=-1):
+        Matrix.__init__(self, augmented_matrix, augmentLocation=augmentLocation)
 
     def check_leading(self, point1, point2):
-        if array[point1][point2] != 1 and array[point1][point2] != 0:
+        if self[point1][point2] != 1 and self[point1][point2] != 0:
             # print("processing")
-            leading = array[point1][point2]
-            for i in range(0, len(array[point1])):
-                array[point1][i] /= leading
+            leading = self[point1][point2]
+            for i in range(0, len(self[point1])):
+                self[point1][i] /= leading
 
     def print_array(self):
         for row in self._matrix:
@@ -402,3 +396,10 @@ def pretty_print_result(array_of_values, multiline=False):
         print('x' + (
             ''.join(list(map(lambda i: subscript[i], list(str(i+1)))))) + ' = ' + str(array_of_values[i][len(array_of_values[i])-1]),
             end=('\n' if multiline else (', ' if i < len(array_of_values) - 1 else ' ')))
+
+
+array = [
+    [Number(2), Number(3), Number(1), Number(13)],
+    [Number(8), Number(0), Number(-2), Number(-10)],
+    [Number(0), Number(18), Number(-3), Number(9)]
+]
