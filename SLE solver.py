@@ -135,10 +135,9 @@ class Matrix():
     "@author tecosaur"
 
     def __init__(self, *args, augmentLocation=None):
-        print('args [' + str(len(args)) + ']:', args)
         # Sanitise matrix
         if len(args) == 0:
-            matrix = [0]
+            matrix = [[0]]
         elif len(args) == 1:
             if type(args[0]) == list:
                 matrix = args[0]
@@ -156,8 +155,18 @@ class Matrix():
         else:
             raise TypeError('Matrix initialisation takes at most 2 arguments')
         self._matrix = matrix
-        self.MaxElementLength = max(map(lambda x: max(map(lambda y: len(str(y)), x)), self._matrix))+1
         self.augmentLocation = augmentLocation
+        self.updateMaxElementLength()
+
+    @staticmethod
+    def I(n):
+        m=[[0 for x in range(n)] for y in range(n)]
+        for i in range(0,n):
+            m[i][i] = 1
+        return Matrix(m)
+
+    def updateMaxElementLength(self):
+        self.MaxElementLength = max(map(lambda x: max(map(lambda y: len(str(y)), x)), self._matrix))+1
 
     def toNumbers(self):
         for r in range(self.rows):
@@ -170,9 +179,11 @@ class Matrix():
 
     def __setitem__(self, i, value):
         self._matrix[i] = value
+        self.updateMaxElementLength()
 
     def __delitem__(self, i):
         self._matrix.__delitem__(i)
+        self.updateMaxElementLength()
 
     def __iter__(self):
         return self._matrix.__iter__()
@@ -182,6 +193,33 @@ class Matrix():
             if mRow == row:
                 return True
         return False
+
+    # Matrix Contents Manipulation
+    def addCol(self, *listsOfValues):
+        if listsOfValues == []:
+            listsOfValues = [0]*self.rows
+        try:
+            for valueList in listsOfValues:
+                if len(valueList) != self.rows:
+                    raise ValueError('The matrix has {0} rows but {1} entries were provided'.format(str(self.rows), str(len(valueList))))
+                else:
+                    for i in range(len(valueList)):
+                        self[i].append(valueList[i])
+        finally:
+            self.updateMaxElementLength()
+
+    def addRow(self, *listsOfValues):
+        if listsOfValues == []:
+            listsOfValues = [0]*self.columns
+        try:
+            for valueList in listsOfValues:
+                if len(valueList) != self.columns:
+                    raise ValueError('The matrix has {0} columns but {1} entries were provided'.format(
+                        str(self.columns), str(len(valueList))))
+                else:
+                    self._matrix.append(valueList)
+        finally:
+            self.updateMaxElementLength()
 
     # Matrix Operations
     def __eq__(self, other):
@@ -270,7 +308,6 @@ class Matrix():
         return rowString
 
 
-# FIXME: need to class-ify some global variables? Anyway, funny stuff is happening
 class GaussJordanSLE(Matrix):
     "@author DAdams2"
 
@@ -366,21 +403,13 @@ def gj_cli():
         ))
         line = input("comma separated coefficients and result: ")
 
-    matrix_as_string = '\n'.join(
-        list(map(
-            lambda line: ''.join(list(map(
-                lambda coeff: ('{:>7.8}'.format(
-                    ' ' + str(coeff).replace(' -', '-'))),
-                line
-            ))),
-            matrix
-        ))
-    )
+    matrix = Matrix(matrix)
 
-    if input('\nConfirm that \n{0}\n Is the correct augmented matrix (y/n) '.format(matrix_as_string)).lower() == 'y':
+    if input('\nConfirm that \n{0}\n Is the correct augmented matrix (y/n) '.format(str(matrix))).lower() == 'y':
         global array
         array = GaussJordanSLE(matrix)
         array.solve()
+        print(array)
 
 
 def pretty_print_result(array_of_values, multiline=False):
