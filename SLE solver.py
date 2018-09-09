@@ -245,7 +245,7 @@ class Matrix():
         return Matrix([[self[r][c] + other[r][c] for c in range(self.columns)] for r in range(self.rows)])
 
     def __mul__(self, other):
-        if not isinstance(other, Matrix) or self.size != other.size[::-1]:
+        if not isinstance(other, Matrix) or self.size[1] != other.size[0]:
             if isinstance(other, int) or isinstance(other, float) or isinstance(other, Number):
                 return Matrix([[other * self[r][c] for c in range(self.columns)] for r in range(self.rows)])
             else:
